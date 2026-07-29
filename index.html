@@ -76,7 +76,7 @@
   <div class="grid">
 
   <article class="card" id="p01">
-    <div class="media has"><video src="video/01.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/01.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">01</span>
@@ -97,7 +97,7 @@
   </article>
 
   <article class="card" id="p02">
-    <div class="media has"><video src="video/02.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/02.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">02</span>
@@ -118,7 +118,7 @@
   </article>
 
   <article class="card" id="p03">
-    <div class="media has"><video src="video/03.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/03.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">03</span>
@@ -139,7 +139,7 @@
   </article>
 
   <article class="card" id="p04">
-    <div class="media has"><video src="video/04.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/04.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">04</span>
@@ -307,7 +307,7 @@
   </article>
 
   <article class="card" id="p12">
-    <div class="media has"><video src="video/12.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/12.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">12</span>
@@ -339,7 +339,7 @@
       <div class="card-name">на сайте: <b>Neo Museum</b></div>
       <div class="alt">на превью «NHM», скелет динозавра и «TIMELESS WONDERS»</div>
       <div class="meta">15 036 символов · <a class="srcvid" href="https://res.cloudinary.com/dsdxaxkiz/video/upload/v1779624998/magnific_use-img-2-as-the-exact-ba_Piu3X0W42C_wnrc8f.mp4" target="_blank" rel="noopener">видео есть внутри промпта</a></div>
-      <a class="assets" href="assets/13-neo-museum/" target="_blank" rel="noopener">Материалы к сборке · 7</a>
+      <a class="assets" href="assets/13-neo-museum/" target="_blank" rel="noopener">Материалы к сборке · 8</a>
       <div class="actions">
         <button class="copy" data-n="13" type="button">Скопировать промпт</button>
         <button class="peek" data-n="13" type="button">Показать текст</button>
@@ -370,7 +370,7 @@
   </article>
 
   <article class="card" id="p15">
-    <div class="media has"><video src="video/15.mp4" muted loop playsinline preload="metadata"></video><button class="play" type="button" aria-label="Проиграть">▶</button></div>
+    <div class="media has"><video src="video/15.mp4" muted loop playsinline autoplay preload="auto"></video><button class="play" type="button" aria-label="Пауза">❚❚</button></div>
     <div class="body">
       <div class="top">
         <span class="num">15</span>
@@ -421,19 +421,24 @@
 (function(){
   var DATA = JSON.parse(document.getElementById('data').textContent);
 
-  // видео: показываем только если файл реально есть
   document.querySelectorAll('.media').forEach(function(m){
     var v = m.querySelector('video');
+    if (!v) return;
+
     v.addEventListener('loadeddata', function(){
       v.setAttribute('data-ok','1');
       m.classList.add('has');
-      m.querySelector('.ph').style.display = 'none';
+      // первый кадр часто чёрный из-за затемнения - отматываем к живому месту
+      if (v.duration && isFinite(v.duration) && v.currentTime < 0.1) {
+        try { v.currentTime = Math.min(1.2, v.duration * 0.15); } catch(e){}
+      }
+      v.play().catch(function(){});
     });
-    v.addEventListener('error', function(){ /* оставляем заглушку */ });
-    m.addEventListener('mouseenter', function(){ if(v.hasAttribute('data-ok')) v.play().catch(function(){}); });
-    m.addEventListener('mouseleave', function(){ if(v.hasAttribute('data-ok')) v.pause(); });
-    m.querySelector('.play').addEventListener('click', function(){
-      if (v.paused) { v.play().catch(function(){}); } else { v.pause(); }
+
+    var btn = m.querySelector('.play');
+    if (btn) btn.addEventListener('click', function(){
+      if (v.paused) { v.play().catch(function(){}); btn.textContent = '❚❚'; }
+      else { v.pause(); btn.textContent = '▶'; }
     });
   });
 
